@@ -9,5 +9,8 @@ class Card:
         else: return f'Card: {self.number} {self.sign}'
 
     def __str__(self):
-        return f'Card: {self.number} {self.sign}'
+        if self.number > 10:
+            return f'Card: {self.high_symbols[self.number - 11]} {self.sign}'
+        else:
+            return f'Card: {self.number} {self.sign}'
 
