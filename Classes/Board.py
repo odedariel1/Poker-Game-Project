@@ -23,45 +23,47 @@ class Board:
                 self.players.append(Player(count, name))
                 count += 1
 
+
     def player_action(self):
         count = 0
         while count < len(self.players) > 1:
-            for index in range(len(self.players)):
+            for player in self.players:
                 print(f"total bet: {self.total_bet}")
-                action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
+                action = int(input(f"Player {player.userid} 1. Check  2. fold  3. Bet : "))
                 while action == "" or 3 < action < 0:
                     print("something went wrong")
-                    action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
+                    action = int(input(f"Player {player.userid} 1. Check  2. fold  3. Bet : "))
 
                 if action == 1 and self.new_bet == 0:
-                    self.players[index].check()
+                    player.check()
                     count += 1
 
                 elif action == 1 and self.new_bet != 0:
-                    self.players[index].call(self.new_bet)
+                    player.call(self.new_bet)
                     self.total_bet += self.new_bet
                     count += 1
                     print(count)
                     if count >= len(self.players):
-                        print("reset work")
                         self.new_bet = 0
                         break
 
                 elif action == 2:
-                    self.players[index].fold()
-                    self.folded_players.append(self.players.pop(self.players[index].userid-1))
-                    index -= 1
+                    player.fold()
+                    self.folded_players.append(self.players.pop(player.userid - 1))
                     if count >= len(self.players):
                         self.new_bet = 0
                         break
                     if len(self.players) == 1:
-                        print(f"{self.players} won the round")  # winner
+                        self.players[0].collect_cash(self.total_bet)
+                        print(f"The Winner is {self.players} ,total earn:{self.total_bet}")
+                        self.total_bet = 0
+                        self.new_bet = 0
                         break
 
                 elif action == 3:
-                    temp_new_bet = self.players[index].bet(self.new_bet)
+                    temp_new_bet = player.bet(self.new_bet)
                     while temp_new_bet is None:
-                        temp_new_bet = self.players[index].bet(self.new_bet)
+                        temp_new_bet = player.bet(self.new_bet)
                     if self.new_bet < temp_new_bet:
                         self.new_bet = temp_new_bet
                         self.total_bet += temp_new_bet
@@ -83,51 +85,96 @@ class Board:
             print(self.on_board_cards)
 
     def find_winner(self):
-            if self.players == 1:
-                print(f"The Winner is {self.players}")
-                self.players[0].collect_cash(self.total_bet)
-                self.total_bet = 0
-                self.new_bet = 0
-            elif len(self.on_board_cards) == 5:
-                highestscore = 0
+            if len(self.on_board_cards) == 4:
+                self.open_table_cards()
+                max_score = ""
                 for player in self.players:
                     score = player.cards + self.on_board_cards
+                    max_score = self.calculate_score(score)
+                    print(max_score)
             else:
                 return self.open_table_cards()
 
-    def find_pairs(self, cards):
-        all_cards = {}
-        for card in reversed(cards):
-            if card.number not in all_cards:
-                all_cards[card.number] = 1
-            else:
-                all_cards[card.number] += 1
-        print(all_cards)
-        print(max(all_cards.items(), key=lambda x: x[1]))
+    def compare_scores(self):
+    def is_royal_flush(self, cards):
+        # Check if the hand is a royal flush
+        royal_flush_values = set([10, 11, 12, 13, 14])
+        return self.is_straight_flush(cards) and set([card.number for card in cards]) == royal_flush_values
 
-    def calculate_score(self, player, cards):
-        #score = player.cards + self.on_board_cards
-        score = cards
-        score = sorted(score, key=lambda x: x.number)
-        # result = self.find_pairs(score)
-        # return "Royal Flash"
-        # return "Straight Flush"
-        #if self.find_pairs(score) == 4:
-        #   return "Four of Kind"
-        #if self.find_pairs(score) == 5:
-            #return "Full House"
-        # return "Flush"
-        # return "Straight"
-        #if self.find_pairs(score) == 3:
-            #return "Three of Kind"
-        #if self.find_pairs(score) == 2:
-            #return "Two Pair"
-        if self.find_pairs(score) == 1:
+    def is_straight_flush(self, cards):
+        # Check if the hand is a straight flush
+        return self.is_straight(cards) and self.is_flush(cards)
+
+    def is_four_of_a_kind(self, cards):
+        # Check if the hand is four of a kind
+        card_values = [card.number for card in cards]
+        for value in card_values:
+            if card_values.count(value) == 4:
+                return True
+        return False
+
+    def is_full_house(self, cards):
+        # Check if the hand is a full house
+        return self.is_three_of_a_kind(cards) and self.is_one_pair(cards)
+
+    def is_flush(self, cards):
+        # Check if the hand is a flush
+        suits = [card.sign for card in cards]
+        return len(set(suits)) == 1
+
+    def is_straight(self, cards):
+        # Check if the hand is a straight
+        card_values = sorted([card.number for card in cards])
+        return card_values == list(range(card_values[0], card_values[-1] + 1))
+
+    def is_three_of_a_kind(self, cards):
+        # Check if the hand is three of a kind
+        card_values = [card.number for card in cards]
+        for value in card_values:
+            if card_values.count(value) == 3:
+                return True
+        return False
+
+    def is_two_pair(self, cards):
+        # Check if the hand is two pair
+        pair_count = 0
+        card_values = [card.number for card in cards]
+        for value in set(card_values):
+            if card_values.count(value) == 2:
+                pair_count += 1
+        return pair_count == 2
+
+    def is_one_pair(self, cards):
+        # Check if the hand is one pair
+        pair_count = 0
+        card_values = [card.number for card in cards]
+        for value in set(card_values):
+            if card_values.count(value) == 2:
+                return True
+        return False
+
+    def calculate_score(self, cards):
+        all_cards = sorted(cards, key=lambda card: card.number)
+        if self.is_royal_flush(all_cards):
+            return "Royal Flash"
+        elif self.is_straight_flush(all_cards):
+            return "Straight Flush"
+        elif self.is_four_of_a_kind(all_cards):
+            return "Four of Kind"
+        elif self.is_full_house(all_cards):
+            return "Full House"
+        elif self.is_flush(all_cards):
+            return "Flush"
+        elif self.is_straight(all_cards):
+            return "Straight"
+        elif self.is_three_of_a_kind(all_cards):
+            return "Three of Kind"
+        elif self.is_two_pair(all_cards):
+            return "Two Pair"
+        elif self.is_one_pair(all_cards):
             return "One Pair"
-        if max((card.number for card in cards)):
-            return {"High Card": max((card.number for card in cards))}
-        count = 0
-        pass
+        else:
+            return "High Card"
 
     def start_game(self):
         # while len(self.players) > 1:
@@ -144,13 +191,12 @@ class Board:
             print(player, player.open_cards())
             print(self.players)
 
-        print(self.all_cards)
         self.player_action()  # start round 1
         self.open_table_cards()
         self.player_action()  # start round 2
-        self.open_table_cards()
+        self.find_winner()
         self.player_action()  # start round 3
-        self.open_table_cards()
+        self.find_winner()
         # open last card and find a winner.
         # return all cards to the main pack
         # check if someone lost all cash
