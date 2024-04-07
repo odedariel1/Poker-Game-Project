@@ -96,6 +96,8 @@ class Board:
                 return self.open_table_cards()
 
     def compare_scores(self):
+        pass
+
     def is_royal_flush(self, cards):
         # Check if the hand is a royal flush
         royal_flush_values = set([10, 11, 12, 13, 14])
