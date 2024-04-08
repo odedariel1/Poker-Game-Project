@@ -71,6 +71,7 @@ class Board:
                         count = 1
                     else:
                         count += 1
+
     def open_table_cards(self):  # this function manage on table cards
         if len(self.on_board_cards) == 5:
             self.all_cards.extend(self.on_board_cards)
@@ -101,7 +102,6 @@ class Board:
                     print(f"The Winner is {player} ,total earn:{earn_cash}")
                     self.total_bet = 0
                     self.new_bet = 0
-                for player in self.players:
                     print(f"Player {player.userid}, {player.open_cards()}")
             else:
                 return self.open_table_cards()
@@ -113,7 +113,7 @@ class Board:
             if sum1 > sum2:
                 return player1, score1
             elif sum1 < sum2:
-                return player2, score2
+                return [player2], score2
             else:
                 player1.append(player2)
                 return player1, score1
@@ -239,6 +239,7 @@ class Board:
                 player.cards = []
             if player.cash == 0:
                 self.players.pop(player.userid - 1)  # pop if player lost all his cash last round
+
     def start_game(self):
         count = 1
         while len(self.players)+len(self.folded_players) > 1:
