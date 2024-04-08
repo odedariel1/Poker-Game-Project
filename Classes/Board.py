@@ -233,6 +233,7 @@ class Board:
     def set_new_match(self):
         while 0 < len(self.folded_players):
             self.players.append(self.folded_players.pop())
+        self.players = sorted(self.players, key=lambda p: p.userid)
         for player in self.players:
             if len(player.cards) > 0:
                 self.all_cards += player.cards  # return all cards to the pocket
@@ -247,13 +248,8 @@ class Board:
             count += 1
             random.shuffle(self.all_cards)  # shuffle Game Cards
             for player in self.players:
-                if player.cash == 0:
-                        self.players.remove(player)
-                        print(f"Player {player.userid} lost the game")
-
                 player.set_cards([self.all_cards.pop(), self.all_cards.pop()])  # set cards to all players
                 print(player, player.open_cards())
-                print(self.players)
 
             self.player_action()  # start round 1
             self.open_table_cards()
