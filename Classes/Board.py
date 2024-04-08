@@ -10,7 +10,15 @@ class Board:
         self.new_bet = 0
         self.players = []
         self.folded_players = []
+        self.winner_test = []
 
+    #def _decorator(func):
+     #   def notice_player_set(self):
+      #      print("Players being!")
+     #       func()
+    #    return notice_player_set()
+    #
+   # @_decorator
     def set_players(self):
         players_amount = int(input("how many players: "))
         while 2 > players_amount or 4 < players_amount:
@@ -42,7 +50,7 @@ class Board:
                     call_bet = player.call(self.new_bet)
                     self.total_bet += call_bet
                     count += 1
-                    print(count)
+
                     if count >= len(self.players):
                         self.new_bet = 0
                         break
@@ -96,6 +104,7 @@ class Board:
                     winners_players, winners_score = self.compare_scores(winners_players, self.players[i], winners_score, score)
 
                 print(f"{winners_score} , winners: {winners_players}")
+                self.winner_test = winners_players
                 for player in winners_players:
                     earn_cash = self.total_bet/len(winners_players)
                     player.collect_cash(earn_cash)
@@ -241,16 +250,18 @@ class Board:
             if player.cash == 0:
                 self.players.pop(player.userid - 1)  # pop if player lost all his cash last round
 
+    def set_cards_to_players(self):
+        for player in self.players:
+            player.set_cards([self.all_cards.pop(), self.all_cards.pop()])  # set cards to all players
+            print(player, player.open_cards())
+
     def start_game(self):
         count = 1
         while len(self.players)+len(self.folded_players) > 1:
             print(f"Match {count}")
             count += 1
             random.shuffle(self.all_cards)  # shuffle Game Cards
-            for player in self.players:
-                player.set_cards([self.all_cards.pop(), self.all_cards.pop()])  # set cards to all players
-                print(player, player.open_cards())
-
+            self.set_cards_to_players()
             self.player_action()  # start round 1
             self.open_table_cards()
             self.player_action()  # start round 2
