@@ -23,14 +23,13 @@ class Board:
                 self.players.append(Player(count, name))
                 count += 1
 
-
     def player_action(self):
         count = 0
         while count < len(self.players) > 1:
-            for player in self.players:
+            for player in self.players:  # on fold cause problems
                 print(f"total bet: {self.total_bet}")
                 action = int(input(f"Player {player.userid} 1. Check  2. fold  3. Bet : "))
-                while action == "" or 3 < action < 0:
+                while action == "" or 3 < action or action < 0:
                     print("something went wrong")
                     action = int(input(f"Player {player.userid} 1. Check  2. fold  3. Bet : "))
 
@@ -50,16 +49,15 @@ class Board:
                 elif action == 2:
                     player.fold()
                     self.folded_players.append(self.players.pop(player.userid - 1))
-                    if count >= len(self.players):
-                        self.new_bet = 0
-                        break
                     if len(self.players) == 1:
                         self.players[0].collect_cash(self.total_bet)
                         print(f"The Winner is {self.players} ,total earn:{self.total_bet}")
                         self.total_bet = 0
                         self.new_bet = 0
                         break
-
+                    if count >= len(self.players):
+                        self.new_bet = 0
+                        break
                 elif action == 3:
                     temp_new_bet = player.bet(self.new_bet)
                     while temp_new_bet is None:
@@ -87,16 +85,67 @@ class Board:
     def find_winner(self):
             if len(self.on_board_cards) == 4:
                 self.open_table_cards()
-                max_score = ""
+                winners_score = self.calculate_score(self.players[0].cards + self.on_board_cards)
+                winners_players = [self.players[0]]
+                for i in range(1, len(self.players)):
+                    score = self.calculate_score(self.players[i].cards + self.on_board_cards)
+                    winners_players, winners_score = self.compare_scores(winners_players, self.players[i], winners_score, score)
+
+                print(f"{winners_score} , winners: {winners_players}")
+                for player in winners_players:
+                    earn_cash = self.total_bet/len(winners_players)
+                    player.collect_cash(earn_cash)
+                    print(f"The Winner is {player} ,total earn:{earn_cash}")
+                    self.total_bet = 0
+                    self.new_bet = 0
                 for player in self.players:
-                    score = player.cards + self.on_board_cards
-                    max_score = self.calculate_score(score)
-                    print(max_score)
+                    print(f"Player {player.userid}, {player.open_cards()}")
             else:
                 return self.open_table_cards()
 
-    def compare_scores(self):
-        pass
+    def compare_scores(self, player1, player2, score1, score2):
+        if score1 == score2:  # need to improve this one!!
+            sum1 = player1[0].cards[0].number + player1[0].cards[1].number
+            sum2 = player2.cards[0].number + player2.cards[1].number
+            if sum1 > sum2:
+                return player1, score1
+            elif sum1 < sum2:
+                return player2, score2
+            else:
+                player1.append(player2)
+                return player1, score1
+        if score1 == "Royal Flush":
+            return player1, score1
+        elif score2 == "Royal Flush":
+            return [player2], score2
+        elif score1 == "Straight Flush":
+            return player1, score1
+        elif score2 == "Straight Flush":
+            return [player2], score2
+        elif score1 == "Four of Kind":
+            return player1, score1
+        elif score2 == "Four of Kind":
+            return [player2], score2
+        elif score1 == "Full House":
+            return player1, score1
+        elif score2 == "Full House":
+            return [player2], score2
+        elif score1 == "Three of Kind":
+            return player1, score1
+        elif score2 == "Three of Kind":
+            return [player2], score2
+        elif score1 == "Two Pair":
+            return player1, score1
+        elif score2 == "Two Pair":
+            return [player2], score2
+        elif score1 == "One Pair":
+            return player1, score1
+        elif score2 == "One Pair":
+            return [player2], score2
+        elif score1 == "High Card":
+            return player1, score1
+        elif score2 == "High Card":
+            return [player2], score2
 
     def is_royal_flush(self, cards):
         # Check if the hand is a royal flush
@@ -158,7 +207,7 @@ class Board:
     def calculate_score(self, cards):
         all_cards = sorted(cards, key=lambda card: card.number)
         if self.is_royal_flush(all_cards):
-            return "Royal Flash"
+            return "Royal Flush"
         elif self.is_straight_flush(all_cards):
             return "Straight Flush"
         elif self.is_four_of_a_kind(all_cards):
@@ -178,28 +227,36 @@ class Board:
         else:
             return "High Card"
 
-    def start_game(self):
-        # while len(self.players) > 1:
+    def set_new_match(self):
         while 0 < len(self.folded_players):
             self.players.append(self.folded_players.pop())
-
-        random.shuffle(self.all_cards)  # suffle Game Cards
         for player in self.players:
+            if len(player.cards) > 0:
+                self.all_cards += player.cards  # return all cards to the pocket
+                player.cards = []
             if player.cash == 0:
-                    self.players.remove(player)
-                    print(f"Player {player.userid} lost the game")
+                self.players.pop(player.userid - 1)  # pop if player lost all his cash last round
+    def start_game(self):
+        count = 1
+        while len(self.players)+len(self.folded_players) > 1:
+            print(f"Match {count}")
+            count += 1
+            random.shuffle(self.all_cards)  # shuffle Game Cards
+            for player in self.players:
+                if player.cash == 0:
+                        self.players.remove(player)
+                        print(f"Player {player.userid} lost the game")
 
-            player.set_cards([self.all_cards.pop(), self.all_cards.pop()])  # set cards to all players
-            print(player, player.open_cards())
-            print(self.players)
+                player.set_cards([self.all_cards.pop(), self.all_cards.pop()])  # set cards to all players
+                print(player, player.open_cards())
+                print(self.players)
 
-        self.player_action()  # start round 1
-        self.open_table_cards()
-        self.player_action()  # start round 2
-        self.find_winner()
-        self.player_action()  # start round 3
-        self.find_winner()
-        # open last card and find a winner.
-        # return all cards to the main pack
-        # check if someone lost all cash
-        # start over
+            self.player_action()  # start round 1
+            self.open_table_cards()
+            self.player_action()  # start round 2
+            self.find_winner()
+            self.player_action()  # start round 3
+            self.find_winner()  # open last card and find a winner.
+            self.set_new_match()  # return all folded players/used cards to the game and kick who lost all cash
+        else:
+            print("game ended")
