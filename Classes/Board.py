@@ -55,6 +55,7 @@ class Board:
                         self.total_bet = 0
                         self.new_bet = 0
                         break
+
                     if count >= len(self.players):
                         self.new_bet = 0
                         break
