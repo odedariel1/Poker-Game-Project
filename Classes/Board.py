@@ -60,6 +60,7 @@ class Board:
                     if count >= len(self.players):
                         self.new_bet = 0
                         break
+
                 elif action == 3:
                     temp_new_bet = player.bet(self.new_bet)
                     while temp_new_bet is None:
