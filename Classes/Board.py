@@ -10,6 +10,7 @@ class Board:
         self.new_bet = 0
         self.players = []
         self.folded_players = []
+
     def set_players(self):
         players_amount = int(input("how many players: "))
         while 2 > players_amount or 4 < players_amount:
@@ -38,8 +39,8 @@ class Board:
                     count += 1
 
                 elif action == 1 and self.new_bet != 0:
-                    player.call(self.new_bet)
-                    self.total_bet += self.new_bet
+                    call_bet = player.call(self.new_bet)
+                    self.total_bet += call_bet
                     count += 1
                     print(count)
                     if count >= len(self.players):
@@ -260,4 +261,4 @@ class Board:
             self.find_winner()  # open last card and find a winner.
             self.set_new_match()  # return all folded players/used cards to the game and kick who lost all cash
         else:
-            print("game ended")
+            print("Game Ended")

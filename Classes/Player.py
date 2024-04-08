@@ -27,12 +27,13 @@ class Player:
 
     def call(self, amount):
         if self.cash <= amount:
-            self.cash = 0
-
+            print(f"{self}\n Called :{self.cash}")
+            amount, self.cash = self.cash, 0
+            return amount
         else:
             self.cash -= amount
-
-        print(f'{self}\n Called :{amount}')
+            print(f'{self}\n Called :{amount}')
+            return amount
 
     def bet(self, oldbet):
         try:
