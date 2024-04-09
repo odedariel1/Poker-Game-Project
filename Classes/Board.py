@@ -1,6 +1,8 @@
 from Classes.Card import Card
 from Classes.Player import Player
+from Classes.decorator import _decorator
 import random
+
 class Board:
     def __init__(self):
         create_cards_pack = lambda: [Card(number, sign) for number in range(2, 15) for sign in ["♥", "♦", "♣", "♠"]]
@@ -12,13 +14,8 @@ class Board:
         self.folded_players = []
         self.winner_test = []
 
-    #def _decorator(func):
-     #   def notice_player_set(self):
-      #      print("Players Are Getting Set!")
-     #       func()
-    #    return notice_player_set()
-    #
-   # @_decorator
+
+    @_decorator
     def set_players(self):
         players_amount = int(input("how many players: "))
         while 2 > players_amount or 4 < players_amount:
