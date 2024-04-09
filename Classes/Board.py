@@ -14,7 +14,7 @@ class Board:
 
     #def _decorator(func):
      #   def notice_player_set(self):
-      #      print("Players being!")
+      #      print("Players Are Getting Set!")
      #       func()
     #    return notice_player_set()
     #
@@ -35,20 +35,24 @@ class Board:
     def player_action(self):
         count = 0
         while count < len(self.players) > 1:
-            for player in self.players:  # on fold cause problems
+            index = 0
+            max_index = len(self.players)
+            while index < max_index:  # on fold cause problems
                 print(f"total bet: {self.total_bet}")
-                action = int(input(f"Player {player.userid} 1. Check  2. fold  3. Bet : "))
+                action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
                 while action == "" or 3 < action or action < 0:
                     print("something went wrong")
-                    action = int(input(f"Player {player.userid} 1. Check  2. fold  3. Bet : "))
+                    action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
 
                 if action == 1 and self.new_bet == 0:
-                    player.check()
+                    self.players[index].check()
+                    index += 1
                     count += 1
 
                 elif action == 1 and self.new_bet != 0:
-                    call_bet = player.call(self.new_bet)
+                    call_bet = self.players[index].call(self.new_bet)
                     self.total_bet += call_bet
+                    index += 1
                     count += 1
 
                     if count >= len(self.players):
@@ -56,8 +60,9 @@ class Board:
                         break
 
                 elif action == 2:
-                    player.fold()
-                    self.folded_players.append(self.players.pop(player.userid - 1))
+                    self.players[index].fold()
+                    self.folded_players.append(self.players.pop(index))
+                    max_index -= 1
                     if len(self.players) == 1:
                         self.players[0].collect_cash(self.total_bet)
                         print(f"The Winner is {self.players} ,total earn:{self.total_bet}")
@@ -70,9 +75,10 @@ class Board:
                         break
 
                 elif action == 3:
-                    temp_new_bet = player.bet(self.new_bet)
+                    temp_new_bet = self.players[index].bet(self.new_bet)
+                    index += 1
                     while temp_new_bet is None:
-                        temp_new_bet = player.bet(self.new_bet)
+                        temp_new_bet = self.players[index].bet(self.new_bet)
                     if self.new_bet < temp_new_bet:
                         self.new_bet = temp_new_bet
                         self.total_bet += temp_new_bet
@@ -117,11 +123,11 @@ class Board:
 
     def compare_scores(self, player1, player2, score1, score2):
         if score1 == score2:  # need to improve this one!!
-            sum1 = player1[0].cards[0].number + player1[0].cards[1].number
-            sum2 = player2.cards[0].number + player2.cards[1].number
-            if sum1 > sum2:
+            higher1 = max(player1[0].cards[0].number, player1[0].cards[1].number)
+            higher2 = max(player2.cards[0].number, player2.cards[1].number)
+            if higher1 > higher2:
                 return player1, score1
-            elif sum1 < sum2:
+            elif higher1 < higher2:
                 return [player2], score2
             else:
                 player1.append(player2)
