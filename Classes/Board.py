@@ -168,7 +168,7 @@ class Board:
     def is_royal_flush(self, cards):
         # Check if the hand is a royal flush
         royal_flush_values = set([10, 11, 12, 13, 14])
-        return self.is_straight_flush(cards) and set([card.number for card in cards]) == royal_flush_values
+        return self.is_straight_flush(cards) and royal_flush_values.issubset(set([card.number for card in cards]))
 
     def is_straight_flush(self, cards):
         # Check if the hand is a straight flush
@@ -188,13 +188,22 @@ class Board:
 
     def is_flush(self, cards):
         # Check if the hand is a flush
-        suits = [card.sign for card in cards]
-        return len(set(suits)) == 1
+        suits = sorted([card.sign for card in cards])
+        for card in suits:
+            if suits.count(card) >= 5:
+                return True
+        return False
 
     def is_straight(self, cards):
         # Check if the hand is a straight
         card_values = sorted([card.number for card in cards])
-        return card_values == list(range(card_values[0], card_values[-1] + 1))
+        index = 0
+        while index < 2:
+            temp = list(range(card_values[index], card_values[len(card_values)+index-3]))
+            index += 1
+            if set(temp).issubset(set(card_values)):
+                return True
+        return False
 
     def is_three_of_a_kind(self, cards):
         # Check if the hand is three of a kind
