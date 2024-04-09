@@ -59,3 +59,8 @@ def test_is_two_pair():
 def test_is_one_pair():
     cards = [Card(2, "♥"), Card(7, "♦"), Card(14, "♣"), Card(14, "♠"), Card(9, "♠"), Card(11, "♣"), Card(5, "♣")]
     assert main.is_one_pair(cards)
+
+def test_calculate_score():
+    cards1 = [Card(2, "♥"), Card(7, "♦"), Card(14, "♣"), Card(14, "♠"), Card(9, "♠"), Card(11, "♣"), Card(5, "♣")] # One Pair
+    cards2 = [Card(7, "♥"), Card(9, "♦"), Card(14, "♣"), Card(14, "♠"), Card(2, "♠"), Card(7, "♣"), Card(5, "♣")] # 2 Pairs
+    assert main.calculate_score(cards1) == "One Pair" and main.calculate_score(cards2) == "Two Pair"

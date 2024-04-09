@@ -14,7 +14,6 @@ class Board:
         self.folded_players = []
         self.winner_test = []
 
-
     @_decorator
     def set_players(self):
         players_amount = int(input("how many players: "))
