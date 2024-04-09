@@ -27,8 +27,8 @@ class Player:
 
     def call(self, amount):
         if self.cash <= amount:
-            print(f"{self}\n Called :{self.cash}")
             amount, self.cash = self.cash, 0
+            print(f"{self}\n Called :{amount}")
             return amount
         else:
             self.cash -= amount

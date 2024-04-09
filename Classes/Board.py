@@ -258,12 +258,17 @@ class Board:
         while 0 < len(self.folded_players):
             self.players.append(self.folded_players.pop())
         self.players = sorted(self.players, key=lambda p: p.userid)
-        for player in self.players:
-            if len(player.cards) > 0:
-                self.all_cards += player.cards  # return all cards to the pocket
-                player.cards = []
-            if player.cash == 0:
-                self.players.pop(player.userid - 1)  # pop if player lost all his cash last round
+        index = 0
+        max_index = len(self.players)
+        while index < max_index:
+            if len(self.players[index].cards) > 0:
+                self.all_cards += self.players[index].cards  # return all cards to the pocket
+                self.players[index].cards = []
+            if self.players[index].cash == 0:
+                self.players.pop(index)  # pop if player lost all his cash last round
+                max_index -= 1
+            else:
+                index += 1
 
     def set_cards_to_players(self):
         for player in self.players:
