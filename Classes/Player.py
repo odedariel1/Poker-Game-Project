@@ -40,15 +40,16 @@ class Player:
             input_amount = int(input("Enter Bet Amount: "))
             if oldbet >= input_amount:
                 self.call(oldbet)
-                return input_amount
             elif self.cash >= input_amount:
                 self.cash-=input_amount
                 print(f'{self}\n Bet :{input_amount}')
-                return input_amount
             else:
                 raise customException()
         except customException as e:
             print(f"Exception Occured: {e} Cash Left:{self.cash}")
+
+        finally:
+            return input_amount
 
     def collect_cash(self, amount):
         self.cash += amount

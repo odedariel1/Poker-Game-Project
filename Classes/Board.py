@@ -16,10 +16,16 @@ class Board:
 
     @_decorator
     def set_players(self):
-        players_amount = int(input("how many players: "))
-        while 2 > players_amount or 4 < players_amount:
-            print("you need at list 2 players to play and no more then 4")
-            players_amount = int(input("how many players: "))
+        success = False
+        while not success:
+            try:
+                players_amount = int(input("how many players: "))
+                if 2 > players_amount or 4 < players_amount:
+                    print("you need at list 2 players to play and no more then 4")
+                else:
+                    success = True
+            except ValueError:
+                print("Cant insert string or empty string please try again with numbers")
 
         count = 1
         while count <= players_amount:
@@ -33,12 +39,18 @@ class Board:
         while count < len(self.players) > 1:
             index = 0
             max_index = len(self.players)
-            while index < max_index:  # on fold cause problems
+            while index < max_index:
                 print(f"total bet: {self.total_bet}")
-                action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
-                while action == "" or 3 < action or action < 0:
-                    print("something went wrong")
-                    action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
+                success = False
+                while not success:
+                    try:
+                        action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
+                        if 3 < action or action <= 0:
+                            print("you need to choose a number between 1 to 3")
+                        else:
+                            success = True
+                    except ValueError:
+                        print("Cant insert string or empty string please try again with numbers")
 
                 if action == 1 and self.new_bet == 0:
                     self.players[index].check()
@@ -88,17 +100,14 @@ class Board:
             self.on_board_cards = []
         if len(self.players) > 1:
             if len(self.on_board_cards) == 0:
-                self.on_board_cards.append(self.all_cards.pop())
-                self.on_board_cards.append(self.all_cards.pop())
-                self.on_board_cards.append(self.all_cards.pop())
+                for i in range(0, 3):
+                    self.on_board_cards.append(self.all_cards.pop())
             else:
                 self.on_board_cards.append(self.all_cards.pop())
-
             print(self.on_board_cards)
 
     def find_winner(self):
-            if len(self.on_board_cards) == 4:
-                self.open_table_cards()
+            if len(self.on_board_cards) == 5:
                 winners_score = self.calculate_score(self.players[0].cards + self.on_board_cards)
                 winners_players = [self.players[0]]
                 for i in range(1, len(self.players)):
@@ -114,8 +123,6 @@ class Board:
                     self.total_bet = 0
                     self.new_bet = 0
                     print(f"Player {player.userid}, {player.open_cards()}")
-            else:
-                return self.open_table_cards()
 
     def compare_scores(self, player1, player2, score1, score2):
         if score1 == score2:  # need to improve this one!!
@@ -194,7 +201,7 @@ class Board:
         # Check if the hand is a straight
         card_values = sorted([card.number for card in cards])
         index = 0
-        while index < 2:
+        while index <= 2:
             temp = list(range(card_values[index], card_values[len(card_values)+index-3]))
             index += 1
             if set(temp).issubset(set(card_values)):
@@ -281,9 +288,10 @@ class Board:
             self.player_action()  # start round 1
             self.open_table_cards()
             self.player_action()  # start round 2
-            self.find_winner()
+            self.open_table_cards()
             self.player_action()  # start round 3
-            self.find_winner()  # open last card and find a winner.
+            self.open_table_cards()
+            self.find_winner()  # find a winner.
             self.set_new_match()  # return all folded players/used cards to the game and kick who lost all cash
         else:
             print("Game Ended")
