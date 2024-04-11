@@ -123,77 +123,80 @@ class Board:
                     print(f"Player {player.userid}, {player.open_cards()}")
 
     def compare_scores(self, player1, player2, score1, score2):
-        if score1 == score2:  # need to improve this one!!
-            higher1 = max(player1[0].cards[0].number, player1[0].cards[1].number)
-            higher2 = max(player2.cards[0].number, player2.cards[1].number)
-            if higher1 > higher2:
+        if score1[0] == score2[0]:
+            if score1[1] > score2[1]:
                 return player1, score1
-            elif higher1 < higher2:
+            elif score1[0] < score2[1]:
                 return [player2], score2
             else:
                 player1.append(player2)
                 return player1, score1
-        if score1 == "Royal Flush":
-            return player1, score1
-        elif score2 == "Royal Flush":
-            return [player2], score2
-        elif score1 == "Straight Flush":
-            return player1, score1
-        elif score2 == "Straight Flush":
-            return [player2], score2
-        elif score1 == "Four of Kind":
-            return player1, score1
-        elif score2 == "Four of Kind":
-            return [player2], score2
-        elif score1 == "Full House":
-            return player1, score1
-        elif score2 == "Full House":
-            return [player2], score2
-        elif score1 == "Three of Kind":
-            return player1, score1
-        elif score2 == "Three of Kind":
-            return [player2], score2
-        elif score1 == "Two Pair":
-            return player1, score1
-        elif score2 == "Two Pair":
-            return [player2], score2
-        elif score1 == "One Pair":
-            return player1, score1
-        elif score2 == "One Pair":
-            return [player2], score2
-        elif score1 == "High Card":
-            return player1, score1
-        elif score2 == "High Card":
-            return [player2], score2
+        if score1[0] == "Royal Flush":
+            return player1, score1[0]
+        elif score2[0] == "Royal Flush":
+            return [player2], score2[0]
+        elif score1[0] == "Straight Flush":
+            return player1, score1[0]
+        elif score2[0] == "Straight Flush":
+            return [player2], score2[0]
+        elif score1[0] == "Four of Kind":
+            return player1, score1[0]
+        elif score2[0] == "Four of Kind":
+            return [player2], score2[0]
+        elif score1[0] == "Full House":
+            return player1, score1[0]
+        elif score2[0] == "Full House":
+            return [player2], score2[0]
+        elif score1[0] == "Three of Kind":
+            return player1, score1[0]
+        elif score2[0] == "Three of Kind":
+            return [player2], score2[0]
+        elif score1[0] == "Two Pair":
+            return player1, score1[0]
+        elif score2[0] == "Two Pair":
+            return [player2], score2[0]
+        elif score1[0] == "One Pair":
+            return player1, score1[0]
+        elif score2[0] == "One Pair":
+            return [player2], score2[0]
+        elif score1[0] == "High Card":
+            return player1, score1[0]
+        elif score2[0] == "High Card":
+            return [player2], score2[0]
 
     def is_royal_flush(self, cards):
         # Check if the hand is a royal flush
         royal_flush_values = set([10, 11, 12, 13, 14])
-        return self.is_straight_flush(cards) and royal_flush_values.issubset(set([card.number for card in cards]))
+        return self.is_straight_flush(cards) and royal_flush_values.issubset(set([card.number for card in cards])), 14
 
     def is_straight_flush(self, cards):
         # Check if the hand is a straight flush
-        return self.is_straight(cards) and self.is_flush(cards)
+        return self.is_straight(cards)[0] and self.is_flush(cards)[0], self.is_straight(cards)[1]
 
     def is_four_of_a_kind(self, cards):
         # Check if the hand is four of a kind
         card_values = [card.number for card in cards]
         for value in card_values:
             if card_values.count(value) == 4:
-                return True
-        return False
+                return True, value
+        return False, 0
 
     def is_full_house(self, cards):
         # Check if the hand is a full house
-        return self.is_three_of_a_kind(cards) and self.is_one_pair(cards)
+        full_house = False
+        max_sol = 0
+        if self.is_three_of_a_kind(cards)[0] and self.is_one_pair(cards)[0]:
+            max_sol = max(self.is_three_of_a_kind(cards)[1], self.is_one_pair(cards)[1])
+            full_house = True
+        return full_house, max_sol
 
     def is_flush(self, cards):
         # Check if the hand is a flush
         suits = sorted([card.sign for card in cards])
         for card in suits:
             if suits.count(card) >= 5:
-                return True
-        return False
+                return True, max([x.number for x in cards if card == x.sign])
+        return False, 0
 
     def is_straight(self, cards):
         # Check if the hand is a straight
@@ -203,25 +206,28 @@ class Board:
             temp = list(range(card_values[index], card_values[len(card_values)+index-3]))
             index += 1
             if set(temp).issubset(set(card_values)):
-                return True
-        return False
+                return True, max(temp)
+        return False, 0
 
     def is_three_of_a_kind(self, cards):
         # Check if the hand is three of a kind
         card_values = [card.number for card in cards]
         for value in card_values:
             if card_values.count(value) == 3:
-                return True
-        return False
+                return True, value
+        return False, 0
 
     def is_two_pair(self, cards):
         # Check if the hand is two pair
         pair_count = 0
         card_values = [card.number for card in cards]
+        max_value = 0
         for value in set(card_values):
             if card_values.count(value) == 2:
                 pair_count += 1
-        return pair_count == 2
+                if max_value <= value:
+                    max_value = value
+        return pair_count == 2, value
 
     def is_one_pair(self, cards):
         # Check if the hand is one pair
@@ -229,31 +235,31 @@ class Board:
         card_values = [card.number for card in cards]
         for value in set(card_values):
             if card_values.count(value) == 2:
-                return True
-        return False
+                return True, value
+        return False, 0
 
     def calculate_score(self, cards):
         all_cards = sorted(cards, key=lambda card: card.number)
-        if self.is_royal_flush(all_cards):
-            return "Royal Flush"
-        elif self.is_straight_flush(all_cards):
-            return "Straight Flush"
-        elif self.is_four_of_a_kind(all_cards):
-            return "Four of Kind"
-        elif self.is_full_house(all_cards):
-            return "Full House"
-        elif self.is_flush(all_cards):
-            return "Flush"
-        elif self.is_straight(all_cards):
-            return "Straight"
-        elif self.is_three_of_a_kind(all_cards):
-            return "Three of Kind"
-        elif self.is_two_pair(all_cards):
-            return "Two Pair"
-        elif self.is_one_pair(all_cards):
-            return "One Pair"
+        if self.is_royal_flush(all_cards)[0]:
+            return ["Royal Flush", 14]
+        elif self.is_straight_flush(all_cards)[0]:
+            return ["Straight Flush", self.is_straight_flush(all_cards)[1]]
+        elif self.is_four_of_a_kind(all_cards)[0]:
+            return ["Four of Kind", self.is_four_of_a_kind(all_cards)[1]]
+        elif self.is_full_house(all_cards)[0]:
+            return ["Full House", self.is_full_house(all_cards)[1]]
+        elif self.is_flush(all_cards)[0]:
+            return ["Flush", self.is_flush(all_cards)[1]]
+        elif self.is_straight(all_cards)[0]:
+            return ["Straight", self.is_straight(all_cards)[1]]
+        elif self.is_three_of_a_kind(all_cards)[0]:
+            return ["Three of Kind", self.is_three_of_a_kind(all_cards)[1]]
+        elif self.is_two_pair(all_cards)[0]:
+            return ["Two Pair", self.is_two_pair(all_cards)[1]]
+        elif self.is_one_pair(all_cards)[0]:
+            return ["One Pair", self.is_one_pair(all_cards)[1]]
         else:
-            return "High Card"
+            return "High Card", max(all_cards)
 
     def set_new_match(self):
         while 0 < len(self.folded_players):
