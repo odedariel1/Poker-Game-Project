@@ -85,8 +85,6 @@ class Board:
                 elif action == 3:
                     temp_new_bet = self.players[index].bet(self.new_bet)
                     index += 1
-                    while temp_new_bet is None:
-                        temp_new_bet = self.players[index].bet(self.new_bet)
                     if self.new_bet < temp_new_bet:
                         self.new_bet = temp_new_bet
                         self.total_bet += temp_new_bet
