@@ -35,11 +35,14 @@ class Player:
             print(f'{self}\n Called :{amount}')
             return amount
 
+    def player_input_bet(self):
+        return int(input("Enter Bet Amount: "))
+
     def bet(self, oldbet):
         success = False
         while not success:
             try:
-                input_amount = int(input("Enter Bet Amount: "))
+                input_amount = self.player_input_bet()
                 if oldbet >= input_amount:
                     success = True
                     return self.call(oldbet)
