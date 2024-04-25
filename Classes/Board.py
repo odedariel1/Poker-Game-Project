@@ -34,6 +34,9 @@ class Board:
                 self.players.append(Player(count, name))
                 count += 1
 
+    def action_input(self, index):
+        return int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
+
     def player_action(self):
         count = 0
         while count < len(self.players) > 1:
@@ -44,7 +47,7 @@ class Board:
                 success = False
                 while not success:
                     try:
-                        action = int(input(f"Player {self.players[index].userid} 1. Check  2. fold  3. Bet : "))
+                        action = self.action_input(index)
                         if 3 < action or action <= 0:
                             print("you need to choose a number between 1 to 3")
                         else:
@@ -126,7 +129,7 @@ class Board:
         if score1[0] == score2[0]:
             if score1[1] > score2[1]:
                 return player1, score1
-            elif score1[0] < score2[1]:
+            elif score1[1] < score2[1]:
                 return [player2], score2
             else:
                 player1.append(player2)
