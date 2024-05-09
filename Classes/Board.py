@@ -262,7 +262,7 @@ class Board:
         elif self.is_one_pair(all_cards)[0]:
             return ["One Pair", self.is_one_pair(all_cards)[1]]
         else:
-            return "High Card", max(all_cards)
+            return "High Card", all_cards[-1]
 
     def set_new_match(self):
         while 0 < len(self.folded_players):

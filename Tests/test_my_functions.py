@@ -110,6 +110,12 @@ def test_is_one_pair():
     board_cards = [Card(14, "♣"), Card(14, "♠"), Card(9, "♠"), Card(11, "♣"), Card(5, "♣")]
     assert main.is_one_pair(player_cards + board_cards)[0]
 
+def test_is_high_card():
+    main = Board()
+    main.players = [Player(1, 'oded'), Player(2, "Dor")]
+    player_cards = [Card(2, "♥"), Card(7, "♦")]
+    board_cards = [Card(3, "♣"), Card(14, "♠"), Card(9, "♠"), Card(11, "♣"), Card(5, "♣")]
+    assert main.calculate_score(player_cards + board_cards)[0] == "High Card"
 
 def test_calculate_score():
     main = Board()

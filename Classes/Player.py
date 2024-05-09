@@ -1,4 +1,8 @@
+import datetime
+
 from Classes.customException import customException
+from Classes.log_producer import rabbit_producer
+
 class Player:
     def __init__(self, userid, name):
         self.userid = userid
@@ -20,20 +24,27 @@ class Player:
         return f'1st Card:{self.cards[0]}, 2nd Card:{self.cards[1]}'
 
     def check(self):
-        print(f"Player {self.userid},{self.name} Checked")
+        message = f"Player {self.userid},{self.name} Checked"
+        status = 'Log Check'
+        rabbit_producer(f"{status}: {message};{datetime.datetime.now()}", status)
+        print(message)
 
     def fold(self):
-        print(f"Player {self.userid},{self.name} Folded")
+        message = f"Player {self.userid},{self.name} Folded"
+        status = 'Log Folded'
+        rabbit_producer(f"{status}: {message};{datetime.datetime.now()}", status)
+        print(message)
 
     def call(self, amount):
         if self.cash <= amount:
             amount, self.cash = self.cash, 0
-            print(f"{self}\n Called :{amount}")
-            return amount
         else:
             self.cash -= amount
-            print(f'{self}\n Called :{amount}')
-            return amount
+        message = f"{self}\n Called :{amount}"
+        status = 'Log Called'
+        rabbit_producer(f"{status}: {message};{datetime.datetime.now()}", status)
+        print(message)
+        return amount
 
     def player_input_bet(self):
         return int(input("Enter Bet Amount: "))
@@ -48,7 +59,10 @@ class Player:
                     return self.call(oldbet)
                 elif self.cash >= input_amount:
                     self.cash -= input_amount
-                    print(f'{self}\n Bet :{input_amount}')
+                    message = f'{self}\n Bet :{input_amount}'
+                    status = 'Log Bet'
+                    rabbit_producer(f"{status}: {message};{datetime.datetime.now()}", status)
+                    print(message)
                     success = True
                     return input_amount
                 else:
